@@ -23,24 +23,16 @@ fn part1(input: &String) -> u32 {
         }
         for u_letter in unique {
             let count = line.matches(u_letter).collect::<Vec<&str>>().len();
-            match count {
-                2 => {
-                    if !seen_two {
-                        twos += 1;
-                        seen_two = true;
-                    }
-                    
-                },
-                3 => {
-                    if !seen_three {
-                        threes += 1;
-                        seen_three = true;
-                    }
-                },
-                _ => {}
-            }
             if seen_three && seen_two {
                 break;
+            }
+            if count == 2 && !seen_two {
+                twos += 1;
+                seen_two = true;
+            }
+            if count == 3 && !seen_three {
+                threes += 1;
+                seen_three = true;
             }
         }
     }
