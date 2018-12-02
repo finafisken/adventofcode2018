@@ -15,25 +15,16 @@ fn part1(input: &String) -> u32 {
     let mut twos = 0;
     let mut threes = 0;
     for line in input.lines() {
-        let mut unique = HashSet::new();
-        let mut seen_two = false;
-        let mut seen_three = false;
+        let mut counts = Vec::new();
         for letter in line.chars() {
-            unique.insert(letter);
+            let count = line.matches(letter).collect::<Vec<&str>>().len();
+            counts.push(count);
         }
-        for u_letter in unique {
-            let count = line.matches(u_letter).collect::<Vec<&str>>().len();
-            if seen_three && seen_two {
-                break;
-            }
-            if count == 2 && !seen_two {
-                twos += 1;
-                seen_two = true;
-            }
-            if count == 3 && !seen_three {
-                threes += 1;
-                seen_three = true;
-            }
+        if counts.contains(&2) {
+            twos +=1;
+        }
+        if counts.contains(&3) {
+            threes +=1;
         }
     }
     twos * threes
