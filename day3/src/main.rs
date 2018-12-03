@@ -8,7 +8,7 @@ fn main() {
     file.read_to_string(&mut input).unwrap();
 
     println!("Part 1: {}", part1(&input));
-    // println!("Part 2: {}", part2(&input));
+    println!("Part 2: {}", part2(&input));
 }
 
 // for claims get points insert (x,y) into hashmap. If hash exists +1
@@ -41,8 +41,34 @@ fn get_points(start: (u32, u32), size: (u32, u32)) -> Vec<(u32, u32)> {
     points
 }
 
+  // collect all ids (key) and points (value) in hashmap, 
+  // check each id's point against colliding points and return only the ones that have all points count=1
+
 fn part2(input: &String) -> u32 {
-    3
+    let mut colliding_points : HashMap<(u32,u32), u32> = HashMap::new();
+    let mut ids : HashMap<u32, Vec<(u32,u32)>> = HashMap::new();
+
+    for claim in input.lines() {
+        let claim_vec = claim.split(|c| c == '@' || c == ':').map(|x| x.trim_start()).collect::<Vec<&str>>();
+        let id: u32 = claim_vec[0].chars().skip(1).collect::<String>().trim().parse().unwrap();
+        let start = &claim_vec[1].split(',').map(|v| v.parse::<u32>().unwrap()).collect::<Vec<u32>>();
+        let size = &claim_vec[2].split('x').map(|v| v.parse::<u32>().unwrap()).collect::<Vec<u32>>();
+        let points = get_points((start[0], start[1]), (size[0], size[1]));
+
+        ids.insert(id, points.clone());
+
+        for point in points {
+            *colliding_points.entry(point).or_insert(0) += 1;
+        }
+    }
+
+    // for id thing get all points that match from colliding_points, if all are 1 => DONE
+    for (id, points) in ids {
+        if points.iter().all(|p| colliding_points[&p] == 1) {
+            return id;
+        }
+    }
+    0
 }
 
 #[test]
