@@ -39,7 +39,7 @@ impl Ord for Event {
     }
 }
 
-fn part1(input: &String) -> u32 {
+fn get_sleep_map(input: &String) -> HashMap<u32, HashMap<u32,u32>> {
     let mut ordered_input: Vec<Event> = Vec::new();
 
     for line in input.lines() {
@@ -51,7 +51,6 @@ fn part1(input: &String) -> u32 {
         });
     }
 
-    // hashmap, key guard id -> vec (min, times found asleep)
     ordered_input.sort();
 
     let mut active_guard: u32 = 0;
@@ -69,6 +68,12 @@ fn part1(input: &String) -> u32 {
             _ => active_guard = event.action.split(' ').nth(1).unwrap().chars().skip(1).collect::<String>().parse().unwrap()
         }
     }
+
+    sleep_map
+}
+
+fn part1(input: &String) -> u32 {
+    let sleep_map = get_sleep_map(input);
 
     let mut max_slept = 0;
     let mut max_slept_guard_id = 0;
@@ -93,35 +98,8 @@ fn part1(input: &String) -> u32 {
 }
 
 fn part2(input: &String) -> u32 {
-    let mut ordered_input: Vec<Event> = Vec::new();
+    let sleep_map = get_sleep_map(input);
 
-    for line in input.lines() {
-        let mut ls = line.split("] ");
-        let date: String = ls.next().unwrap().chars().skip(1).collect();
-        ordered_input.push(Event {
-            action: ls.next().unwrap().to_string(),
-            date: NaiveDateTime::parse_from_str(date.as_str(), "%Y-%m-%d %H:%M").unwrap()
-        });
-    }
-
-    // hashmap, key guard id -> vec (min, times found asleep)
-    ordered_input.sort();
-
-    let mut active_guard: u32 = 0;
-    let mut active_guard_asleep = 0;
-    let mut sleep_map: HashMap<u32, HashMap<u32,u32>> = HashMap::new();
-    for event in ordered_input {
-        match event.action.as_ref() {
-            "wakes up" => {
-                for min in active_guard_asleep..event.date.time().minute() {
-                    let mut internal_map = sleep_map.entry(active_guard).or_default();
-                    *internal_map.entry(min).or_default() +=1;
-                }
-            },
-            "falls asleep" => active_guard_asleep = event.date.time().minute(),
-            _ => active_guard = event.action.split(' ').nth(1).unwrap().chars().skip(1).collect::<String>().parse().unwrap()
-        }
-    }
     // Iterate over guards and minutes, fold over minutes and times and max by number of times
     let ((sleepiest_min, _), guard) = sleep_map.iter().map(|(&guard, times)| {
         (times.iter().fold((0, 0), |max_pair, (&min, &times)| {
