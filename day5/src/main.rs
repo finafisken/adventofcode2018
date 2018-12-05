@@ -19,8 +19,7 @@ fn main() {
 fn part1(input: &String) -> i32 {
     let reduced_polymer = input.chars().fold(" ".to_string(), |mut acc, c| {
         let last_char = acc.chars().last().unwrap();
-        if last_char.to_lowercase().to_string() == c.to_lowercase().to_string() && (last_char.is_lowercase() && c.is_uppercase() || last_char.is_uppercase() && c.is_lowercase()) {
-            // return acc - last char
+        if last_char.to_ascii_lowercase() == c.to_ascii_lowercase() && (last_char.is_lowercase() && c.is_uppercase() || last_char.is_uppercase() && c.is_lowercase()) {
             acc.chars().take(acc.chars().count() - 1).collect()
         } else {
             acc.push(c);
@@ -34,12 +33,13 @@ fn part1(input: &String) -> i32 {
 }
 
 fn part2(input: &String) -> i32 {
-    let mut min_count = 11894;
+    let mut min_count = 11894; // result from part 1
+
+    // a-z range in bytes
     for c in b'a'..b'z' {
         let alpha = c as char;
-        let trimmed_polymer: String = input.chars().filter(|letter| letter.to_lowercase().to_string() != alpha.to_string()).collect();
-        let count = part1(&trimmed_polymer);
-        min_count = min(min_count, count);
+        let trimmed_polymer: String = input.chars().filter(|letter| letter.to_ascii_lowercase() != alpha).collect();
+        min_count = min(min_count, part1(&trimmed_polymer));
     }
     min_count
 }
