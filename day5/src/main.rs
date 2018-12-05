@@ -1,17 +1,18 @@
 use std::fs::File;
 use std::io::prelude::*;
+use std::cmp::min;
 
 fn main() {
     let mut file = File::open("input.txt").unwrap();
     let mut input = String::new();
     file.read_to_string(&mut input).unwrap();
 
-    // println!("Part 1: {}", part1(&input));
+    println!("Part 1: {}", part1(&input));
     println!("Part 2: {}", part2(&input));
 }
 
 // fold over string
-// for each fold check if last char of acc reacts (HOW?) with next
+// for each fold check if last char of acc reacts with next
 // if they react remove last off acc and ignore next, if not add next to acc
 // count number of chars
 
@@ -33,7 +34,14 @@ fn part1(input: &String) -> i32 {
 }
 
 fn part2(input: &String) -> i32 {
-    2
+    let mut min_count = 11894;
+    for c in b'a'..b'z' {
+        let alpha = c as char;
+        let trimmed_polymer: String = input.chars().filter(|letter| letter.to_lowercase().to_string() != alpha.to_string()).collect();
+        let count = part1(&trimmed_polymer);
+        min_count = min(min_count, count);
+    }
+    min_count
 }
 
 #[test]
@@ -47,5 +55,5 @@ fn validate_part1() {
 fn validate_part2() {
     let input = "dabAcCaCBAcCcaDA".to_string();
 
-    assert_eq!(2, part2(&input));
+    assert_eq!(4, part2(&input));
 }
