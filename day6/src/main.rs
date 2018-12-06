@@ -11,10 +11,6 @@ fn main() {
     println!("Part 2: {}", part2(&input, 10000));
 }
 
-// figure out board size (max/min x/y tot)
-// iterate over all points in board, calc manhattan distance to each point
-// assign point to closest coord
-
 fn prepare(input: &String) -> (Vec<(i32, i32)>, (i32, i32), (i32, i32)) {
     let coordinates: Vec<(i32, i32)> = input.lines().map(|p| {
         let p_vec: Vec<&str> = p.split(", ").collect();
@@ -26,6 +22,10 @@ fn prepare(input: &String) -> (Vec<(i32, i32)>, (i32, i32), (i32, i32)) {
 
     (coordinates, (max_x, max_y), (min_x, min_y))
 }
+
+// figure out board size (max/min x/y tot)
+// iterate over all points in board, calc manhattan distance to each point
+// assign point to closest coord
 
 fn part1(input: &String) -> i32 {
     let (coordinates, (max_x, max_y), (min_x, min_y)) = prepare(input);
