@@ -16,7 +16,7 @@ fn main() {
     println!("Part 2: {}", part2(&input, 5, 60));
 }
 
-fn part1(input: &String) -> String {
+fn get_dependencies(input: &String) -> HashMap<char, Vec<char>> {
     let mut dependencies: HashMap<char, Vec<char>> = HashMap::new();
     let regx = Regex::new(r"([A-Z]).+([A-Z]).+([A-Z]).+").unwrap(); // fix regex
     for line in input.lines() {
@@ -26,7 +26,11 @@ fn part1(input: &String) -> String {
         dependencies.entry(target).or_default().push(req);
         dependencies.entry(req).or_default();
     }
+    dependencies
+}
 
+fn part1(input: &String) -> String {
+    let dependencies = get_dependencies(&input);
     let mut remaining = dependencies.keys().cloned().collect::<BTreeSet<_>>();
     let mut fulfilled = HashSet::new();
     let mut ordered = Vec::new();
@@ -50,16 +54,25 @@ fn part1(input: &String) -> String {
     ordered.into_iter().collect::<String>()
 }
 
-fn part2(input: &String, worker_count: usize, base_time: u32) -> u32 {
-    let mut dependencies: HashMap<char, Vec<char>> = HashMap::new();
-    let regx = Regex::new(r"([A-Z]).+([A-Z]).+([A-Z]).+").unwrap(); // fix regex
-    for line in input.lines() {
-        let caps = regx.captures(line).unwrap();
-        let req = caps[2].chars().next().unwrap();
-        let target = caps[3].chars().next().unwrap();
-        dependencies.entry(target).or_default().push(req);
-        dependencies.entry(req).or_default();
+
+#[derive(Debug)]
+struct Worker {
+    // amount left
+    work: u32,
+    // currently working on
+    current: Option<char>,
+}
+
+impl Worker {
+    fn tick(&mut self) {
+        if self.work > 0 {
+            self.work -= 1;
+        }
     }
+}
+
+fn part2(input: &String, worker_count: usize, base_time: u32) -> u32 {
+    let dependencies = get_dependencies(&input);
     let mut remaining = dependencies.keys().cloned().collect::<BTreeSet<_>>();
     let mut fulfilled = HashSet::new();
     let mut done = Vec::new();
@@ -118,22 +131,6 @@ fn part2(input: &String, worker_count: usize, base_time: u32) -> u32 {
     }
 
     return tick - 1;
-
-    #[derive(Debug)]
-    struct Worker {
-        // amount left
-        work: u32,
-        // currently working on
-        current: Option<char>,
-    }
-
-    impl Worker {
-        fn tick(&mut self) {
-            if self.work > 0 {
-                self.work -= 1;
-            }
-        }
-    }
 }
 
 #[test]
