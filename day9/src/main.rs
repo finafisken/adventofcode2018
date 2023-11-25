@@ -23,32 +23,27 @@ fn part1(players: u32, highest_marble: u32) -> u32 {
     for marble in 1..=highest_marble {
         if marble % 23 == 0 {
             // score
-            let mut ccw7: i32 = current_marble_idx as i32 - 7;
-            if ccw7 < 0 {
-                ccw7 = circle.len() as i32 - ccw7;
-            }
+            let ccw7 = if current_marble_idx >= 7 {
+                current_marble_idx - 7
+            } else {
+                circle.len() as u32 - (7 - current_marble_idx)
+            };
             let ccw7_marble = circle.remove(ccw7 as usize);
             *player_scores.entry(current_player).or_insert(0) += marble + ccw7_marble;
             current_marble_idx = ccw7 as u32;
         } else {
             // normal insert
-            if current_marble_idx == 0 {
-                circle.push(marble);
-                current_marble_idx = 1;
-            } else {
-                let insert_at = (current_marble_idx as usize + 2) % circle.len();
-                circle.insert(insert_at, marble);
-                current_marble_idx = insert_at as u32;
-            }
+            let insert_at = (current_marble_idx as usize + 2) % circle.len();
+            circle.insert(insert_at, marble);
+            current_marble_idx = insert_at as u32;
         }
         // new current player
-        current_player = marble % players + 1;
-        println!("{:?}", circle);
-        println!("{:?}", circle[current_marble_idx as usize]);
+        current_player = marble % players;
+        if current_player == 0 {
+            current_player = players;
+        }
     }
 
-    println!("## {:?}", player_scores);
-    // println!("{:?}", circle);
     *player_scores.values().max().unwrap()
 }
 
