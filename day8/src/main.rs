@@ -10,7 +10,7 @@ fn main() {
     // println!("Part 2: {}", part2(&input));
 }
 
-fn sum_meta(nodes: &mut impl Iterator<Item=u32>) -> u32 {
+fn sum_meta(nodes: &mut impl Iterator<Item = u32>) -> u32 {
     let child_nodes = nodes.next().unwrap();
     let meta_entries = nodes.next().unwrap() as usize;
 
@@ -20,7 +20,7 @@ fn sum_meta(nodes: &mut impl Iterator<Item=u32>) -> u32 {
     c_sum + m_sum
 }
 
-fn part1(input: &String) -> u32 {
+fn part1(input: &str) -> u32 {
     let mut nodes = input.split_whitespace().map(|n| n.parse::<u32>().unwrap());
 
     sum_meta(&mut nodes)
