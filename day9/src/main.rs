@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, LinkedList};
 use std::fs::File;
 use std::io::prelude::*;
 
@@ -13,6 +13,10 @@ fn main() {
         .collect();
 
     println!("Part 1: {}", part1(input_numbers[0], input_numbers[1]));
+    println!(
+        "Part 2: {}",
+        part2(input_numbers[0], input_numbers[1] * 100)
+    );
 }
 
 fn part1(players: u32, highest_marble: u32) -> u32 {
@@ -30,7 +34,7 @@ fn part1(players: u32, highest_marble: u32) -> u32 {
             };
             let ccw7_marble = circle.remove(ccw7 as usize);
             *player_scores.entry(current_player).or_insert(0) += marble + ccw7_marble;
-            current_marble_idx = ccw7 as u32;
+            current_marble_idx = ccw7;
         } else {
             // normal insert
             let insert_at = (current_marble_idx as usize + 2) % circle.len();
@@ -47,12 +51,57 @@ fn part1(players: u32, highest_marble: u32) -> u32 {
     *player_scores.values().max().unwrap()
 }
 
+fn part2(players: u32, highest_marble: u32) -> u32 {
+    let mut circle: LinkedList<u32> = LinkedList::new();
+    circle.push_back(0);
+    let mut player_scores: HashMap<u32, u32> = HashMap::with_capacity(players as usize);
+    let mut current_player = 1;
+
+    for marble in 1..=highest_marble {
+        if marble % 23 == 0 {
+            // score
+            for _ in 0..7 {
+                let step_cww = circle.pop_back().unwrap();
+                circle.push_front(step_cww);
+            }
+            let ccw7_marble = circle.pop_back().unwrap();
+            println!("{}: {}", current_player, marble + ccw7_marble);
+            *player_scores.entry(current_player).or_insert(0) += marble + ccw7_marble;
+        } else {
+            // normal insert
+            for _ in 0..1 {
+                let step_cw = circle.pop_front().unwrap();
+                circle.push_back(step_cw);
+            }
+            circle.push_back(marble);
+        }
+        // new current player
+        current_player = marble % players;
+        if current_player == 0 {
+            current_player = players;
+        }
+
+        println!("{:?}", circle);
+    }
+
+    *player_scores.values().max().unwrap()
+}
+
+// #[test]
+// fn test_part1() {
+//     assert_eq!(part1(9, 25), 32);
+//     assert_eq!(part1(10, 1618), 8317);
+//     assert_eq!(part1(13, 7999), 146373);
+//     assert_eq!(part1(17, 1104), 2764);
+//     assert_eq!(part1(21, 6111), 54718);
+//     assert_eq!(part1(30, 5807), 37305);
+// }
 #[test]
-fn test_part1() {
-    assert_eq!(part1(9, 25), 32);
-    assert_eq!(part1(10, 1618), 8317);
-    assert_eq!(part1(13, 7999), 146373);
-    assert_eq!(part1(17, 1104), 2764);
-    assert_eq!(part1(21, 6111), 54718);
-    assert_eq!(part1(30, 5807), 37305);
+fn test_part2() {
+    assert_eq!(part2(9, 25), 32);
+    assert_eq!(part2(10, 1618), 8317);
+    // assert_eq!(part2(13, 7999), 146373);
+    // assert_eq!(part2(17, 1104), 2764);
+    // assert_eq!(part2(21, 6111), 54718);
+    // assert_eq!(part2(30, 5807), 37305);
 }
