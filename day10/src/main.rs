@@ -54,11 +54,13 @@ fn main() {
             .find_iter(line)
             .filter_map(|s| s.as_str().parse().ok())
             .collect();
-        let point = Point::new(numbers);
-        points.push(point);
+
+        points.push(Point::new(numbers));
     }
 
+    let mut waited_seconds = 0;
     loop {
+        waited_seconds += 1;
         for point in &mut points {
             point.tick();
         }
@@ -72,9 +74,10 @@ fn main() {
         let height = max_y.abs_diff(min_y);
 
         if width <= 70 && height <= 30 {
-            // paint
+            println!("Part 1:");
             paint(points, max_x, min_x, max_y, min_y);
             break;
         }
     }
+    println!("Part 2: {}", waited_seconds);
 }
