@@ -33,7 +33,7 @@ fn paint(points: Vec<Point>, max_x: i32, min_x: i32, max_y: i32, min_y: i32) {
             if points.iter().any(|p| p.x == x && p.y == y) {
                 row.push('#');
             } else {
-                row.push('.');
+                row.push(' ');
             }
         }
         let output_row: String = row.iter().cloned().collect();
@@ -65,15 +65,12 @@ fn main() {
             point.tick();
         }
 
-        let max_x = points.iter().map(|p| p.x).fold(i32::MIN, i32::max);
-        let min_x = points.iter().map(|p| p.x).fold(i32::MAX, i32::min);
-        let max_y = points.iter().map(|p| p.y).fold(i32::MIN, i32::max);
-        let min_y = points.iter().map(|p| p.y).fold(i32::MAX, i32::min);
+        let max_x = points.iter().map(|p| p.x).reduce(i32::max).unwrap();
+        let min_x = points.iter().map(|p| p.x).reduce(i32::min).unwrap();
+        let max_y = points.iter().map(|p| p.y).reduce(i32::max).unwrap();
+        let min_y = points.iter().map(|p| p.y).reduce(i32::min).unwrap();
 
-        let width = max_x.abs_diff(min_x);
-        let height = max_y.abs_diff(min_y);
-
-        if width <= 70 && height <= 30 {
+        if max_x.abs_diff(min_x) <= 70 && max_y.abs_diff(min_y) <= 30 {
             println!("Part 1:");
             paint(points, max_x, min_x, max_y, min_y);
             break;
