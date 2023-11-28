@@ -29,8 +29,27 @@ fn generate_grid(serial_nr: usize) -> Grid {
     grid
 }
 
+fn part1(serial_nr: usize) -> (usize, usize) {
+    let grid = generate_grid(serial_nr);
+    let mut max_3x3 = (0, 0, 0);
+    for y in 1..=297 {
+        for x in 1..=297 {
+            let mut to_sum = Vec::new();
+            for yy in y..=(y + 2) {
+                for xx in x..=(x + 2) {
+                    to_sum.push(grid[&(xx, yy)]);
+                }
+            }
+            let sum = to_sum.iter().sum();
+            if sum > max_3x3.0 {
+                max_3x3 = (sum, x, y);
+            }
+        }
+    }
+
+    (max_3x3.1, max_3x3.2)
+}
+
 fn main() {
-    println!("{:?}", generate_grid(57).get(&(122, 79)));
-    println!("{:?}", generate_grid(39).get(&(217, 196)));
-    println!("{:?}", generate_grid(71).get(&(101, 153)));
+    println!("Part 1: {:?}", part1(9798));
 }
