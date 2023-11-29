@@ -50,6 +50,29 @@ fn part1(serial_nr: usize) -> (usize, usize) {
     (max_3x3.1, max_3x3.2)
 }
 
+fn part2(serial_nr: usize) -> (usize, usize, usize) {
+    let grid = generate_grid(serial_nr);
+
+    let mut max = (0, 0, 0, 0);
+    for window in 1..=300 {
+        for y in 1..=(300 - window) {
+            for x in 1..=(300 - window) {
+                let mut to_sum = Vec::new();
+                for yy in y..=(y + (window - 1)) {
+                    for xx in x..=(x + (window - 1)) {
+                        to_sum.push(grid[&(xx, yy)]);
+                    }
+                }
+                let sum = to_sum.iter().sum();
+                if sum > max.0 {
+                    max = (sum, x, y, window);
+                }
+            }
+        }
+    }
+    (max.1, max.2, max.3)
+}
 fn main() {
     println!("Part 1: {:?}", part1(9798));
+    println!("Part 2: {:?}", part2(9798));
 }
