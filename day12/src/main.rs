@@ -17,10 +17,12 @@ fn main() {
     }
 
     let mut state = initial_state.clone();
+    let mut offset = 0;
     for _gen in 1..=20 {
-        let mut new_state = String::from("..");
+        let mut new_state = String::from("...");
+        offset -= 3;
         new_state.push_str(state.as_str());
-        new_state.push_str("..");
+        new_state.push_str("...");
         let extended_state = new_state.clone();
 
         for i in 2..new_state.len() - 2 {
@@ -29,40 +31,23 @@ fn main() {
                 new_state = new_state
                     .chars()
                     .enumerate()
-                    .fold(Vec::new(), |mut acc, (ii, char)| {
+                    .map(|(ii, char)| {
                         if ii == i {
-                            acc.push(*match_results.get(to_match).unwrap())
+                            *match_results.get(to_match).unwrap()
                         } else {
-                            acc.push(char)
+                            char
                         }
-                        acc
                     })
-                    .into_iter()
                     .collect::<String>();
             }
-            //  else {
-            //     new_state = new_state
-            //         .chars()
-            //         .enumerate()
-            //         .fold(Vec::new(), |mut acc, (ii, char)| {
-            //             if ii == i {
-            //                 acc.push('.')
-            //             } else {
-            //                 acc.push(char)
-            //             }
-            //             acc
-            //         })
-            //         .into_iter()
-            //         .collect::<String>();
-            // }
         }
 
-        println!("gen {}: {}", _gen, new_state);
+        // println!("gen {}: {}", _gen, new_state);
         state = new_state;
     }
     let sum_pots: isize = state.chars().enumerate().fold(0, |sum, (i, val)| {
         if val == '#' {
-            return sum + i as isize - 40;
+            return sum + i as isize + offset;
         }
         sum
     });
