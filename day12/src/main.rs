@@ -1,7 +1,4 @@
-use std::{
-    collections::{HashMap, VecDeque},
-    fs::read_to_string,
-};
+use std::{collections::HashMap, fs::read_to_string};
 
 fn main() {
     let input = read_to_string("input.txt").unwrap();
@@ -63,7 +60,9 @@ fn part2(gens: u64, initial_state: String, match_results: HashMap<String, char>)
     let mut state = initial_state.clone();
     let mut offset = 0;
     // let mut latest_results: VecDeque<String> = VecDeque::new();
-    let mut seen: HashMap<String, u32> = HashMap::from([(state.clone(), 1_u32)]);
+    let mut seen: HashMap<String, (isize, String)> =
+        HashMap::from([(state.clone(), (0, state.clone()))]);
+    let mut cache_hit = 0;
     // let mut result: isize = 0;
     for _gen in 1..=gens {
         let mut new_state = String::from("...");
@@ -92,16 +91,30 @@ fn part2(gens: u64, initial_state: String, match_results: HashMap<String, char>)
         // println!("gen {}: {}", _gen, new_state);
         //
         // let trimmed = &new_state[2..new_state.len() - 5];
-        // println!("{new_state}");
-        // println!("{trimmed}");
         let gx = new_state.clone();
         let trimmed = gx.trim_start_matches('.').trim_end_matches('.');
 
-        *seen.entry(trimmed.to_string()).or_insert(0_u32) += 1;
+        // let trimmed: String = new_state
+        //     .chars()
+        //     .skip(3)
+        //     .take(new_state.len() - 6)
+        //     .collect();
+
+        // println!("{new_state}");
+        // println!("{trimmed}");
+        // seen.entry(trimmed.to_string())
+        //     .or_insert((offset, new_state.clone()));
+        if seen.contains_key(trimmed) {
+            cache_hit += 1;
+        }
+
+        seen.insert(trimmed.to_string(), (offset, new_state.clone()));
+
+        // .1 += 1;
         // result = sum_pots(&state, offset);
         state = new_state;
 
-        if *seen.get(&trimmed.to_string()).unwrap() > 100_u32 {
+        if cache_hit >= 1000 {
             break;
         }
         // println!("{}", result);
@@ -117,9 +130,12 @@ fn part2(gens: u64, initial_state: String, match_results: HashMap<String, char>)
         // latest_results.push_back(pots);
     }
     // result
-    seen.keys().map(|state| sum_pots(state, offset))
+    seen.values()
+        .map(|(offset, state)| sum_pots(state, *offset))
+        .max()
+        .unwrap()
     // NEED TO KEEP TRACK OF OFFSET SINCE WE TRIM
-    sum_pots(&state, offset)
+    // sum_pots(&state, offset)
 }
 
 fn sum_pots(state: &str, offset: isize) -> isize {
