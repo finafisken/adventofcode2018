@@ -1,6 +1,6 @@
-use std::{collections::HashMap, fs, task::Wake};
+use std::{collections::HashMap, fs};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 struct Cart {
     position: (usize, usize),
     char: char,
@@ -39,15 +39,50 @@ impl Cart {
         self.turns_made += 1;
     }
 
-    fn follow(&mut self) {
+    fn turn(&mut self, corner: char) {
+        match corner {
+            '/' => match self.char {
+                '<' => self.char = 'v',
+                '^' => self.char = '>',
+                '>' => self.char = '^',
+                'v' => self.char = '<',
+                _ => panic!("unknown cart char"),
+            },
+            '\\' => match self.char {
+                '>' => self.char = 'v',
+                '^' => self.char = '<',
+                '<' => self.char = '^',
+                'v' => self.char = '>',
+                _ => panic!("unknown cart char"),
+            },
+            _ => unreachable!(),
+        }
+    }
+
+    fn next_pos(&self) -> (usize, usize) {
         let (x, y) = self.position;
         match self.char {
-            '<' => self.position = (x - 1, y),
-            '^' => self.position = (x, y - 1),
-            '>' => self.position = (x + 1, y),
-            'v' => self.position = (x, y + 1),
+            '<' => (x - 1, y),
+            '^' => (x, y - 1),
+            '>' => (x + 1, y),
+            'v' => (x, y + 1),
             _ => panic!("unknown cart char"),
         }
+    }
+}
+
+impl Ord for Cart {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        let distance_self = self.position.0 + self.position.1;
+        let distance_other = other.position.0 + other.position.1;
+
+        distance_self.cmp(&distance_other)
+    }
+}
+
+impl PartialOrd for Cart {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
     }
 }
 
@@ -82,7 +117,27 @@ fn main() {
     }
     // println!("{:?}", track);
     // println!("{:?}", carts);
-    loop {
-        for cart in &carts {}
+    let mut crash = false;
+
+    while !crash {
+        for cart in &mut carts {
+            let (next_x, next_y) = cart.next_pos();
+            let next_char = *track.get(&(next_x, next_y)).unwrap();
+            match next_char {
+                '/' | '\\' => cart.turn(next_char),
+                // can have following cart in same dir?
+                '<' | '>' | '^' | 'v' => {
+                    crash = true;
+                    println!("{:?}", cart.position);
+                }
+                '+' => cart.intersect(),
+                _ => (), // '|' | '-' =>
+            }
+            cart.position = (next_x, next_y);
+        }
+
+        // sort carts for next tick
+        carts.sort();
+        println!("{:?}", carts);
     }
 }
