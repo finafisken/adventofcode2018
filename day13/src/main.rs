@@ -87,7 +87,7 @@ impl PartialOrd for Cart {
 }
 
 fn main() {
-    let input = fs::read_to_string("test_input.txt").expect("missing input");
+    let input = fs::read_to_string("input.txt").expect("missing input");
 
     let mut track: HashMap<(usize, usize), char> = HashMap::new();
     let mut carts: Vec<Cart> = Vec::new();
@@ -99,7 +99,7 @@ fn main() {
                     carts.push(Cart {
                         position: (x, y),
                         char: c,
-                        turns_made: 0,
+                        turns_made: 1,
                     });
                     track.insert((x, y), '-')
                 }
@@ -107,7 +107,7 @@ fn main() {
                     carts.push(Cart {
                         position: (x, y),
                         char: c,
-                        turns_made: 0,
+                        turns_made: 1,
                     });
                     track.insert((x, y), '|')
                 }
@@ -115,8 +115,6 @@ fn main() {
             };
         }
     }
-    // println!("{:?}", track);
-    // println!("{:?}", carts);
     let mut crash = false;
 
     while !crash {
@@ -125,19 +123,33 @@ fn main() {
             let next_char = *track.get(&(next_x, next_y)).unwrap();
             match next_char {
                 '/' | '\\' => cart.turn(next_char),
-                // can have following cart in same dir?
-                '<' | '>' | '^' | 'v' => {
-                    crash = true;
-                    println!("{:?}", cart.position);
-                }
                 '+' => cart.intersect(),
                 _ => (), // '|' | '-' =>
             }
             cart.position = (next_x, next_y);
         }
 
+        crash = has_collided(&carts);
+
         // sort carts for next tick
         carts.sort();
-        println!("{:?}", carts);
+        // println!("{:?}", carts);
     }
+}
+
+fn has_collided(carts: &[Cart]) -> bool {
+    for (i, cart_a) in carts.iter().enumerate() {
+        for (j, cart_b) in carts.iter().enumerate() {
+            // avoid comparing self
+            if i != j
+                && cart_a.position.0 == cart_b.position.0
+                && cart_a.position.1 == cart_b.position.1
+            {
+                println!("{:?}", carts);
+                return true;
+            }
+        }
+    }
+
+    false
 }
